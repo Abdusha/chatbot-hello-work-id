@@ -28,6 +28,8 @@ function cacheElements() {
         fab: null,
         chatWindow: null,
         closeBtn: null,
+        enterFullscreenBtn: null,
+        exitFullscreenBtn: null,
         messagesContainer: null,
         inputField: null,
         sendBtn: null,
@@ -63,9 +65,27 @@ function renderWidget() {
                         </p>
                     </div>
                 </div>
-                <button class="close-btn" id="close-btn" aria-label="Tutup obrolan">
-                    ✕
-                </button>
+                <div class="header-actions">
+                    <button class="fullscreen-btn enter" id="enter-fullscreen-btn" aria-label="Masuk layar penuh">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+                            <path d="M8 3H3v5" />
+                            <path d="M16 3h5v5" />
+                            <path d="M21 16v5h-5" />
+                            <path d="M3 16v5h5" />
+                        </svg>
+                    </button>
+                    <button class="fullscreen-btn exit" id="exit-fullscreen-btn" aria-label="Keluar layar penuh" style="display:none">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
+                            <path d="M9 3h6v6" />
+                            <path d="M15 21h-6v-6" />
+                            <path d="M3 9v6h6" />
+                            <path d="M21 15v-6h-6" />
+                        </svg>
+                    </button>
+                    <button class="close-btn" id="close-btn" aria-label="Tutup obrolan">
+                        ✕
+                    </button>
+                </div>
             </div>
 
             <!-- File Preview Bar -->
@@ -113,6 +133,8 @@ function updateElementCache() {
     domElements.fab = document.getElementById('fab-btn');
     domElements.chatWindow = document.getElementById('chat-window');
     domElements.closeBtn = document.getElementById('close-btn');
+    domElements.enterFullscreenBtn = document.getElementById('enter-fullscreen-btn');
+    domElements.exitFullscreenBtn = document.getElementById('exit-fullscreen-btn');
     domElements.messagesContainer = document.getElementById('messages-container');
     domElements.inputField = document.getElementById('input-field');
     domElements.sendBtn = document.getElementById('send-btn');
@@ -133,6 +155,48 @@ function toggleChat() {
         domElements.inputField.focus();
     } else {
         domElements.chatWindow.classList.remove('open');
+    }
+}
+
+// Fullscreen handling (uses Fullscreen API with CSS fallback)
+function enterFullscreen() {
+    try {
+        if (domElements.chatWindow.requestFullscreen) {
+            domElements.chatWindow.requestFullscreen().catch(() => {});
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    domElements.chatWindow.classList.add('fullscreen');
+    if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'none';
+    if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'flex';
+    if (domElements.fab) domElements.fab.style.display = 'none';
+}
+
+function exitFullscreen() {
+    try {
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    domElements.chatWindow.classList.remove('fullscreen');
+    if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'flex';
+    if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'none';
+    if (domElements.fab) domElements.fab.style.display = '';
+}
+
+function handleFullscreenChange() {
+    const isFs = !!document.fullscreenElement;
+    if (!isFs && domElements.chatWindow.classList.contains('fullscreen')) {
+        // user exited with ESC or other means
+        domElements.chatWindow.classList.remove('fullscreen');
+        if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'flex';
+        if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'none';
+        if (domElements.fab) domElements.fab.style.display = '';
     }
 }
 
@@ -413,6 +477,11 @@ function attachEventListeners() {
     domElements.attachmentBtn.addEventListener('click', triggerFileInput);
     domElements.fileInput.addEventListener('change', handleFileSelected);
     domElements.removeFileBtn.addEventListener('click', removeFile);
+
+    // Fullscreen buttons
+    if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.addEventListener('click', enterFullscreen);
+    if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.addEventListener('click', exitFullscreen);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     // Form submission
     const form = document.createElement('form');
