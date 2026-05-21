@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Work ID - Career Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="bg-background">
+
+    <!-- Landing Page Content -->
+    <main class="landing-container">
+        <span class="badge">Asisten Karir</span>
+
+        <h1 class="landing-title">Hello Work ID</h1>
+
+        <p class="landing-subtitle">
+            Asisten karir interaktif Anda dan chatbot konsultasi hukum ketenagakerjaan
+        </p>
+
+        <div class="welcome-section">
+            <p>Selamat datang di Hello Work ID, dirancang khusus untuk pasar Indonesia. Dapatkan jawaban instan tentang:
+            </p>
+            <ul class="feature-list">
+                <li>Panduan karir dan pengembangan profesional</li>
+                <li>Hukum ketenagakerjaan Indonesia dan hak-hak pekerja</li>
+                <li>Kontrak kerja dan regulasi ketenagakerjaan</li>
+                <li>Kebijakan tempat kerja dan tunjangan karyawan</li>
+                <li>Bantuan CV dan aplikasi pekerjaan</li>
+            </ul>
+        </div>
+
+        <div class="how-to-use">
+            <h2>Cara Menggunakan</h2>
+            <div class="usage-grid">
+                <div class="usage-card">
+                    <h3><span class="icon">💬</span> Tanyakan Pertanyaan</h3>
+                    <p>Ketik pertanyaan Anda tentang karir, hukum ketenagakerjaan, atau topik profesional. Dapatkan
+                        respons instan dari asisten AI kami.</p>
+                </div>
+                <div class="usage-card">
+                    <h3><span class="icon">📎</span> Unggah CV</h3>
+                    <p>Klik tombol lampiran untuk mengunggah CV Anda dalam format PDF untuk konsultasi karir dan saran
+                        peningkatan.</p>
+                </div>
+                <div class="usage-card">
+                    <h3><span class="icon">🎯</span> Dapatkan Bantuan</h3>
+                    <p>Terima panduan personal tentang transisi karir, strategi pencarian kerja, dan pertumbuhan
+                        profesional.</p>
+                </div>
+                <div class="usage-card">
+                    <h3><span class="icon">⚖️</span> Informasi Hukum</h3>
+                    <p>Pelajari tentang undang-undang ketenagakerjaan Indonesia, hak-hak pekerja, tunjangan kerja, dan
+                        peraturan tempat kerja.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-hint">
+            👀 Lihat sudut kanan bawah untuk membuka chatbot Hello Work ID dan mulai percakapan Anda
+        </div>
+    </main>
+
+    <!-- Widget Root & File Input -->
+    <div id="widget-root"></div>
+    <input type="file" id="file-input" accept="application/pdf" style="display: none;" />
+
+    <script src="widget.js" defer></script>
+</body>
+
+</html>
