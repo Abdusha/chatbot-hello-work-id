@@ -166,6 +166,16 @@ function toggleChat() {
     }
 }
 
+// Handle close button - collapse expanded mode first if needed
+function handleCloseClick() {
+    // If chat is in expanded mode, collapse it first
+    if (domElements.chatWindow.classList.contains('expanded')) {
+        collapseChat();
+    }
+    // Then close the chat
+    toggleChat();
+}
+
 // Expand chat window to fill viewport (no true fullscreen API)
 function expandChat() {
     domElements.chatWindow.classList.add('expanded');
@@ -455,7 +465,7 @@ async function handleFormSubmit(event) {
 function attachEventListeners() {
     // Chat toggle
     domElements.fab.addEventListener('click', toggleChat);
-    domElements.closeBtn.addEventListener('click', toggleChat);
+    domElements.closeBtn.addEventListener('click', handleCloseClick);
 
     // File handling
     domElements.attachmentBtn.addEventListener('click', triggerFileInput);
