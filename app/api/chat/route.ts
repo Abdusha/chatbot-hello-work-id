@@ -18,8 +18,9 @@ export async function POST(request: Request) {
     // Read the request payload sent by the client widget
     const body = await request.json();
 
-    // Call the Google Gemini 2.5 Flash API securely from the server
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // Call the Google Gemini API securely from the server
+    const model = 'gemini-3.1-flash-lite'; // Change gemini model if needed
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const response = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
