@@ -66,7 +66,7 @@ function renderWidget() {
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="fullscreen-btn enter" id="enter-fullscreen-btn" aria-label="Masuk layar penuh">
+                    <button class="fullscreen-btn enter" id="enter-fullscreen-btn" aria-label="Perbesar jendela chat">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
                             <path d="M8 3H3v5" />
                             <path d="M16 3h5v5" />
@@ -74,7 +74,7 @@ function renderWidget() {
                             <path d="M3 16v5h5" />
                         </svg>
                     </button>
-                    <button class="fullscreen-btn exit" id="exit-fullscreen-btn" aria-label="Keluar layar penuh" style="display:none">
+                    <button class="fullscreen-btn exit" id="exit-fullscreen-btn" aria-label="Perkecil jendela chat" style="display:none">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
                             <path d="M9 3h6v6" />
                             <path d="M15 21h-6v-6" />
@@ -158,46 +158,19 @@ function toggleChat() {
     }
 }
 
-// Fullscreen handling (uses Fullscreen API with CSS fallback)
-function enterFullscreen() {
-    try {
-        if (domElements.chatWindow.requestFullscreen) {
-            domElements.chatWindow.requestFullscreen().catch(() => {});
-        }
-    } catch (e) {
-        // ignore
-    }
-
-    domElements.chatWindow.classList.add('fullscreen');
+// Expand chat window to fill viewport (no true fullscreen API)
+function expandChat() {
+    domElements.chatWindow.classList.add('expanded');
     if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'none';
     if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'flex';
     if (domElements.fab) domElements.fab.style.display = 'none';
 }
 
-function exitFullscreen() {
-    try {
-        if (document.fullscreenElement) {
-            document.exitFullscreen().catch(() => {});
-        }
-    } catch (e) {
-        // ignore
-    }
-
-    domElements.chatWindow.classList.remove('fullscreen');
+function collapseChat() {
+    domElements.chatWindow.classList.remove('expanded');
     if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'flex';
     if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'none';
     if (domElements.fab) domElements.fab.style.display = '';
-}
-
-function handleFullscreenChange() {
-    const isFs = !!document.fullscreenElement;
-    if (!isFs && domElements.chatWindow.classList.contains('fullscreen')) {
-        // user exited with ESC or other means
-        domElements.chatWindow.classList.remove('fullscreen');
-        if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'flex';
-        if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'none';
-        if (domElements.fab) domElements.fab.style.display = '';
-    }
 }
 
 // ============================================================================
@@ -478,10 +451,9 @@ function attachEventListeners() {
     domElements.fileInput.addEventListener('change', handleFileSelected);
     domElements.removeFileBtn.addEventListener('click', removeFile);
 
-    // Fullscreen buttons
-    if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.addEventListener('click', enterFullscreen);
-    if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.addEventListener('click', exitFullscreen);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    // Expand/Collapse buttons
+    if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.addEventListener('click', expandChat);
+    if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.addEventListener('click', collapseChat);
 
     // Form submission
     const form = document.createElement('form');

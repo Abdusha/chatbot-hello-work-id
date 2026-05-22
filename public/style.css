@@ -343,14 +343,15 @@ body {
     display: none;
 }
 
-/* Fullscreen chat window styles */
-.chat-window.fullscreen {
+/* Expanded chat window styles (fills viewport) */
+.chat-window.expanded {
+    position: fixed;
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    width: auto !important;
-    height: auto !important;
+    width: 100% !important;
+    height: 100% !important;
     border-radius: 0 !important;
     margin: 0 !important;
     max-width: 100% !important;
@@ -359,16 +360,17 @@ body {
     z-index: 99999 !important;
 }
 
-.chat-window.fullscreen .messages-container {
+.chat-window.expanded .messages-container {
     padding: 18px;
     overflow-y: auto;
 }
 
-.chat-window.fullscreen .input-bar {
+.chat-window.expanded .input-bar {
     position: sticky;
     bottom: 0;
     z-index: 3;
     background: var(--bg-white);
+    border-top: 1px solid #E5E7EB;
 }
 
 /* Ensure fullscreen is full-width on small devices */
