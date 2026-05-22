@@ -96,14 +96,6 @@ function renderWidget() {
                 </div>
             </div>
 
-            <!-- File Preview Bar -->
-            <div class="file-preview-bar" id="file-preview-bar">
-                <span class="file-name" id="file-name"></span>
-                <button class="remove-file-btn" id="remove-file-btn" aria-label="Hapus file">
-                    ✕
-                </button>
-            </div>
-
             <!-- Messages Container -->
             <div class="messages-container" id="messages-container">
                 <div class="message bot">
@@ -111,6 +103,14 @@ function renderWidget() {
                         Halo! 👋 Saya Hello Work ID, asisten karir Anda. Bagaimana saya bisa membantu Anda hari ini?
                     </div>
                 </div>
+            </div>
+
+            <!-- File Preview Bar -->
+            <div class="file-preview-bar" id="file-preview-bar">
+                <span class="file-name" id="file-name"></span>
+                <button class="remove-file-btn" id="remove-file-btn" aria-label="Hapus file">
+                    ✕
+                </button>
             </div>
 
             <!-- Input Bar -->
