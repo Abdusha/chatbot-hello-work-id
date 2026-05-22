@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Work ID - Chat</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" type="image/png" href="icon-light-32x32.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="icon-dark-32x32.png" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="apple-icon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Widget Root & File Input -->
+    <div id="widget-root"></div>
+    <input type="file" id="file-input" accept="application/pdf" style="display: none;" />
+
+    <script>
+        // Redirect to add expanded=true parameter if not present
+        const params = new URLSearchParams(window.location.search);
+        if (!params.has('expanded')) {
+            window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'expanded=true';
+        }
+    </script>
+    <script src="widget.js" defer></script>
+</body>
+
+</html>

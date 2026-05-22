@@ -7,12 +7,19 @@
 // STATE MANAGEMENT
 // ============================================================================
 
+// Detect expanded-only mode from URL parameters
+function isExpandedOnlyMode() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('expanded') === 'true' || params.get('fullscreen') === 'true';
+}
+
 const widgetState = {
     isOpen: false,
     selectedFile: null,
     selectedFileBase64: null,
     messages: [],
     isTyping: false,
+    expandedOnly: isExpandedOnlyMode(),
 };
 
 // ============================================================================
@@ -45,6 +52,7 @@ function cacheElements() {
 
 function renderWidget() {
     const widget = document.createElement('div');
+    widget.setAttribute('data-expanded-only', widgetState.expandedOnly ? 'true' : 'false');
     widget.innerHTML = `
         <!-- Floating Action Button -->
         <button class="fab-button" id="fab-btn" aria-label="Buka Hello Work ID">
@@ -66,7 +74,7 @@ function renderWidget() {
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="fullscreen-btn enter" id="enter-fullscreen-btn" aria-label="Perbesar jendela chat">
+                    <button class="fullscreen-btn enter" id="enter-fullscreen-btn" aria-label="Perbesar jendela chat" ${widgetState.expandedOnly ? 'style="display:none"' : ''}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
                             <path d="M8 3H3v5" />
                             <path d="M16 3h5v5" />
@@ -74,7 +82,7 @@ function renderWidget() {
                             <path d="M3 16v5h5" />
                         </svg>
                     </button>
-                    <button class="fullscreen-btn exit" id="exit-fullscreen-btn" aria-label="Perkecil jendela chat" style="display:none">
+                    <button class="fullscreen-btn exit" id="exit-fullscreen-btn" aria-label="Perkecil jendela chat" ${!widgetState.expandedOnly ? 'style="display:none"' : ''}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">
                             <path d="M9 3h6v6" />
                             <path d="M15 21h-6v-6" />
@@ -82,7 +90,7 @@ function renderWidget() {
                             <path d="M21 15v-6h-6" />
                         </svg>
                     </button>
-                    <button class="close-btn" id="close-btn" aria-label="Tutup obrolan">
+                    <button class="close-btn" id="close-btn" aria-label="Tutup obrolan" ${widgetState.expandedOnly ? 'style="display:none"' : ''}>
                         ✕
                     </button>
                 </div>
@@ -167,6 +175,9 @@ function expandChat() {
 }
 
 function collapseChat() {
+    // Prevent collapse in expanded-only mode
+    if (widgetState.expandedOnly) return;
+    
     domElements.chatWindow.classList.remove('expanded');
     if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.style.display = 'flex';
     if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.style.display = 'none';
@@ -478,6 +489,15 @@ function attachEventListeners() {
 function init() {
     renderWidget();
     attachEventListeners();
+    
+    // Auto-expand and open chat in expanded-only mode
+    if (widgetState.expandedOnly) {
+        widgetState.isOpen = true;
+        domElements.chatWindow.classList.add('open');
+        expandChat();
+        domElements.inputField.focus();
+    }
+    
     console.log('✅ Hello Work ID Widget initialized with backend proxy support');
 }
 
