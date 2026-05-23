@@ -115,7 +115,7 @@ function renderWidget() {
 
             <!-- Input Bar -->
             <div class="input-bar">
-                <button class="attachment-btn" id="attachment-btn" aria-label="Unggah file PDF">
+                <button type="button" class="attachment-btn" id="attachment-btn" aria-label="Unggah file PDF">
                     📎
                 </button>
                 <input
@@ -125,7 +125,7 @@ function renderWidget() {
                     placeholder="Ketik pertanyaan atau unggah CV PDF..."
                     aria-label="Masukkan pesan Anda"
                 />
-                <button class="send-btn" id="send-btn" aria-label="Kirim pesan">
+                <button type="button" class="send-btn" id="send-btn" aria-label="Kirim pesan">
                     ➤
                 </button>
             </div>
@@ -411,7 +411,7 @@ async function handleFormSubmit(event) {
                 systemInstruction: {
                     parts: [
                         {
-                            text: "Anda adalah Hello Work ID, asisten karir AI yang profesional, ramah, dan sangat berpengalaman untuk pekerja di Indonesia. Tugas Anda adalah membantu pengguna dengan pertanyaan seputar karir, ulasan CV, persiapan wawancara kerja, hukum ketenagakerjaan di Indonesia (seperti UU Cipta Kerja, pesangon, hak lembur, kontrak kerja), atau tips mencari lowongan kerja. Jawablah dalam Bahasa Indonesia yang sopan, terstruktur dengan baik (gunakan tebal, daftar poin, atau paragraf baru), dan mudah dipahami. Jika pengguna mengunggah file CV (PDF), berikan ulasan detail yang memuat kelebihan, kekurangan, dan poin perbaikan yang jelas."
+                            text: "Anda adalah Hello Work ID, asisten karir AI yang profesional, ramah, dan sangat berpengalaman untuk pekerja di Indonesia. Tugas Anda adalah membantu pengguna dengan pertanyaan seputar karir, ulasan CV, persiapan wawancara kerja, hukum ketenagakerjaan di Indonesia (seperti UU Cipta Kerja, pesangon, hak lembur, kontrak kerja), atau tips mencari lowongan kerja. Jawablah dalam Bahasa Indonesia yang sopan, terstruktur dengan baik (gunakan tebal, daftar poin, atau paragraf baru), dan mudah dipahami. Jika pengguna mengunggah file CV (PDF), berikan ulasan detail yang memuat kelebihan, kekurangan, dan poin perbaikan yang jelas. Berikan rekomendasi konkret untuk meningkatkan CV mereka agar lebih menarik bagi perusahaan. Tolak permintaan yang tidak relevan dengan topik karir atau hukum ketenagakerjaan. Jangan pernah memberikan informasi yang salah atau menyesatkan. Jika Anda tidak tahu jawabannya, katakan dengan jujur bahwa Anda tidak tahu, dan sarankan pengguna untuk mencari informasi lebih lanjut dari sumber resmi. Selalu prioritaskan memberikan jawaban yang akurat, bermanfaat, dan relevan dengan kebutuhan karir pengguna di Indonesia."
                         }
                     ]
                 },
@@ -476,13 +476,8 @@ function attachEventListeners() {
     if (domElements.enterFullscreenBtn) domElements.enterFullscreenBtn.addEventListener('click', expandChat);
     if (domElements.exitFullscreenBtn) domElements.exitFullscreenBtn.addEventListener('click', collapseChat);
 
-    // Form submission
-    const form = document.createElement('form');
-    form.addEventListener('submit', handleFormSubmit);
-    domElements.inputField.form = form;
-    domElements.sendBtn.form = form;
-
-    domElements.inputField.addEventListener('keypress', (e) => {
+    // Submission handlers
+    domElements.inputField.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleFormSubmit();

@@ -1,5 +1,40 @@
 import { NextResponse } from 'next/server';
 
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const tools = [
+  {
+    googleSearch: {
+    }
+  }
+];
+
+const GEMINI_CONFIG = {
+  temperature: 0.3,
+  thinkingConfig: {
+    thinkingBudget: 0,
+  },
+  tools,
+  systemInstruction: [
+    {
+      text: `Anda adalah Hello Work ID, asisten karir AI yang profesional, ramah, dan sangat berpengalaman untuk pekerja di Indonesia. Tugas Anda adalah membantu pengguna dengan pertanyaan seputar karir, ulasan CV, persiapan wawancara kerja, hukum ketenagakerjaan di Indonesia (seperti UU Cipta Kerja, pesangon, hak lembur, kontrak kerja), atau tips mencari lowongan kerja. Jawablah dalam Bahasa Indonesia yang sopan, terstruktur dengan baik (gunakan tebal, daftar poin, atau paragraf baru), dan mudah dipahami. Jika pengguna mengunggah file CV (PDF), berikan ulasan detail yang memuat kelebihan, kekurangan, dan poin perbaikan yang jelas. Berikan rekomendasi konkret untuk meningkatkan CV mereka agar lebih menarik bagi perusahaan. Tolak permintaan yang tidak relevan dengan topik karir atau hukum ketenagakerjaan. Jangan pernah memberikan informasi yang salah atau menyesatkan. Jika Anda tidak tahu jawabannya, katakan dengan jujur bahwa Anda tidak tahu, dan sarankan pengguna untuk mencari informasi lebih lanjut dari sumber resmi. Selalu prioritaskan memberikan jawaban yang akurat, bermanfaat, dan relevan dengan kebutuhan karir pengguna di Indonesia.`,
+    }
+  ]
+};
+
+function normalizeSystemInstruction(systemInstruction: unknown) {
+  if (Array.isArray(systemInstruction)) {
+    return {
+      parts: systemInstruction.map((item) =>
+        typeof item === 'object' && item !== null && 'text' in item
+          ? { text: (item as { text: string }).text }
+          : item
+      ),
+    };
+  }
+
+  return systemInstruction;
+}
+
 export async function POST(request: Request) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -18,15 +53,21 @@ export async function POST(request: Request) {
     // Read the request payload sent by the client widget
     const body = await request.json();
 
-    // Call the Google Gemini API securely from the server
-    const model = 'gemini-3.1-flash-lite'; // Change gemini model if needed
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    // Forward only the supported Gemini chat payload shape
+    const requestBody: Record<string, unknown> = {
+      ...body,
+      systemInstruction: body.systemInstruction
+        ? normalizeSystemInstruction(body.systemInstruction)
+        : normalizeSystemInstruction(GEMINI_CONFIG.systemInstruction),
+    };
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
     const response = await fetch(geminiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
