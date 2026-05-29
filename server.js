@@ -148,7 +148,12 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`🚀 Hello Work ID server is running on http://localhost:${PORT}`);
-});
+// Start the server (only in local/non-serverless environments)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Hello Work ID server is running on http://localhost:${PORT}`);
+  });
+}
+
+// Export the app for Vercel serverless deployment
+export default app;
