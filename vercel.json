@@ -4,21 +4,16 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "public/**"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/(.*)",
       "dest": "server.js"
-    },
-    {
-      "src": "/(.*\\.(html|css|js|svg|png|jpg|ico))",
-      "dest": "public/$1"
-    },
-    {
-      "src": "/",
-      "dest": "public/chat.html"
     }
   ]
 }
