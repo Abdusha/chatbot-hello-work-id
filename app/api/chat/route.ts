@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemma-4-26b-a4b-it';
 const tools = [
   {
     googleSearch: {
@@ -11,7 +12,7 @@ const tools = [
 const GEMINI_CONFIG = {
   temperature: 0.3,
   thinkingConfig: {
-    thinkingBudget: 0,
+    thinkingLevel: ThinkingLevel.MINIMAL,
   },
   tools,
   systemInstruction: [
@@ -21,76 +22,97 @@ const GEMINI_CONFIG = {
   ]
 };
 
-function normalizeSystemInstruction(systemInstruction: unknown) {
-  if (Array.isArray(systemInstruction)) {
-    return {
-      parts: systemInstruction.map((item) =>
-        typeof item === 'object' && item !== null && 'text' in item
-          ? { text: (item as { text: string }).text }
-          : item
-      ),
-    };
-  }
-
-  return systemInstruction;
-}
-
 export async function POST(request: Request) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
       return NextResponse.json(
-        { 
-          error: { 
-            message: 'Gemini API Key belum dikonfigurasi di server. Mohon atur variabel GEMINI_API_KEY di file .env Anda.' 
-          } 
+        {
+          error: {
+            message: 'Gemini API Key belum dikonfigurasi di server. Mohon atur variabel GEMINI_API_KEY di file .env Anda.'
+          }
         },
         { status: 500 }
       );
     }
 
+    // Initialize the official Google Gen AI SDK client
+    const ai = new GoogleGenAI({ apiKey });
+
     // Read the request payload sent by the client widget
     const body = await request.json();
+    const contents = body.contents;
 
-    // Forward only the supported Gemini chat payload shape
-    const requestBody: Record<string, unknown> = {
-      ...body,
-      systemInstruction: body.systemInstruction
-        ? normalizeSystemInstruction(body.systemInstruction)
-        : normalizeSystemInstruction(GEMINI_CONFIG.systemInstruction),
-    };
-
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      const errMsg = errData.error?.message || 'Gagal terhubung dengan server Gemini API.';
-      return NextResponse.json(
-        { error: { message: errMsg } },
-        { status: response.status }
-      );
+    // Normalize system instruction to string as required by the google-genai SDK config
+    let systemInstructionString = GEMINI_CONFIG.systemInstruction[0].text;
+    if (body.systemInstruction) {
+      if (typeof body.systemInstruction === 'string') {
+        systemInstructionString = body.systemInstruction;
+      } else if (typeof body.systemInstruction === 'object') {
+        const parts = (body.systemInstruction as any).parts;
+        if (Array.isArray(parts) && parts.length > 0 && parts[0].text) {
+          systemInstructionString = parts[0].text;
+        } else if ((body.systemInstruction as any).text) {
+          systemInstructionString = (body.systemInstruction as any).text;
+        }
+      }
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Call Gemini AI using the SDK
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: contents,
+      config: {
+        temperature: GEMINI_CONFIG.temperature,
+        thinkingConfig: {
+          thinkingLevel: GEMINI_CONFIG.thinkingConfig.thinkingLevel,
+        },
+        tools: GEMINI_CONFIG.tools,
+        systemInstruction: systemInstructionString,
+      }
+    });
+
+    // Extract the actual response text (filtering out thought/thinking parts)
+    let botText = '';
+    try {
+      botText = response.text || '';
+    } catch (e) {
+      const parts = response.candidates?.[0]?.content?.parts;
+      if (Array.isArray(parts)) {
+        botText = parts
+          .filter((p: any) => !p.thought)
+          .map((p: any) => p.text)
+          .join('\n');
+      }
+    }
+
+    // Return a simplified and clean response structure to the frontend
+    return NextResponse.json({
+      candidates: [
+        {
+          content: {
+            parts: [
+              {
+                text: botText
+              }
+            ]
+          }
+        }
+      ],
+      usageMetadata: response.usageMetadata,
+    });
 
   } catch (error: any) {
     console.error('❌ Server-side Gemini API Error:', error);
     return NextResponse.json(
-      { 
-        error: { 
-          message: error.message || 'Terjadi kesalahan internal pada server proxy.' 
-        } 
+      {
+        error: {
+          message: error.message || 'Terjadi kesalahan internal pada server proxy.'
+        }
       },
       { status: 500 }
     );
   }
 }
+
