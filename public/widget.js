@@ -213,6 +213,14 @@ function handleFileSelected(event) {
         return;
     }
 
+    // Limit file size to 3.5 MB (3.5 * 1024 * 1024 bytes)
+    const maxSizeBytes = 3.5 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+        alert('Ukuran berkas terlalu besar! Maksimal ukuran file CV adalah 3.5 MB.');
+        domElements.fileInput.value = '';
+        return;
+    }
+
     widgetState.selectedFile = file;
     showFilePreview(file.name);
 
