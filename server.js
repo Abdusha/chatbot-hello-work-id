@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -275,9 +276,17 @@ app.post('/api/generate-pdf', async (req, res) => {
       });
     }
 
+    const isLocal = !process.env.VERCEL;
+    const executablePath = isLocal 
+      ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+      : await chromium.executablePath();
+
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: isLocal ? ['--no-sandbox', '--disable-setuid-sandbox'] : chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: executablePath,
+      headless: isLocal ? 'new' : chromium.headless,
+      ignoreHTTPSErrors: true,
     });
     const page = await browser.newPage();
 
