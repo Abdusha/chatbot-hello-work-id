@@ -31,6 +31,16 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
+// Chat fullscreen route - serve the chat fullscreen interface directly
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'fullscreen.html'));
+});
+
+// CV Optimizer route - serve the main chat interface directly
+app.get('/cv-optimizer', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cv-optimizer.html'));
+});
+
 // Gemini Configuration
 const GEMINI_MODEL = 'gemma-4-26b-a4b-it';
 const tools = [
@@ -163,8 +173,8 @@ app.post('/api/cv-optimize', async (req, res) => {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const langInstructions = language === 'en' 
-      ? 'Bahasa Inggris' 
+    const langInstructions = language === 'en'
+      ? 'Bahasa Inggris'
       : 'Bahasa Indonesia';
 
     // Build the request contents with the PDF base64 and target job description
@@ -270,10 +280,10 @@ app.post('/api/generate-pdf', async (req, res) => {
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
-    
+
     // Set content and wait until resources are loaded
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
+
     // Generate PDF buffer
     const pdfBuffer = await page.pdf({
       format: 'A4',
