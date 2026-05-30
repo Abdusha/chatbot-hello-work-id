@@ -151,7 +151,7 @@ app.post('/api/cv-optimize', async (req, res) => {
       });
     }
 
-    const { cvBase64, jobDescription } = req.body;
+    const { cvBase64, jobDescription, language } = req.body;
 
     if (!cvBase64) {
       return res.status(400).json({
@@ -162,6 +162,10 @@ app.post('/api/cv-optimize', async (req, res) => {
     }
 
     const ai = new GoogleGenAI({ apiKey });
+
+    const langInstructions = language === 'en' 
+      ? 'Bahasa Inggris' 
+      : 'Bahasa Indonesia';
 
     // Build the request contents with the PDF base64 and target job description
     const contents = [
@@ -175,14 +179,14 @@ app.post('/api/cv-optimize', async (req, res) => {
             }
           },
           {
-            text: `Tolong optimasi CV PDF saya agar menjadi sangat ramah ATS (ATS-friendly) dan profesional untuk pasar kerja Indonesia.
+            text: `Tolong optimasi CV PDF saya agar menjadi sangat ramah ATS (ATS-friendly) dan profesional.
             
 Target Lowongan Kerja / Deskripsi Pekerjaan (jika ada):
 ${jobDescription || 'Tidak ada deskripsi pekerjaan spesifik. Optimasikan secara umum agar profesional.'}
 
 Ketentuan Output:
 1. Evaluasi CV asli dan berikan estimasi skor ATS (0-100) sebelum dioptimasi.
-2. Tulis ulang isi CV agar ramah ATS dengan menggunakan bahasa Indonesia yang profesional (formal), struktur yang bersih (Summary, Work Experience, Education, Skills), kalimat yang diawali dengan kata kerja aksi (action verbs) yang kuat, dan masukkan kata kunci (keywords) yang relevan dengan target pekerjaan.
+2. Tulis ulang isi CV agar ramah ATS dengan menggunakan ${langInstructions} yang profesional (formal), struktur yang bersih (Summary, Work Experience, Education, Skills), kalimat yang diawali dengan kata kerja aksi (action verbs) yang kuat, dan masukkan kata kunci (keywords) yang relevan dengan target pekerjaan.
 3. Estimasi skor ATS (0-100) setelah optimasi (seharusnya jauh lebih tinggi).
 4. Berikan daftar perubahan utama (keyChanges) dan tips tambahan (tips) untuk pengguna.
 5. Anda HARUS mengembalikan respons dalam format JSON yang valid dengan struktur berikut (jangan tambahkan teks lain di luar JSON):
@@ -198,7 +202,7 @@ Ketentuan Output:
       }
     ];
 
-    const systemInstruction = `Anda adalah seorang HR Expert, Rekruter Profesional, dan Spesialis CV ATS di Indonesia. Tugas Anda adalah menganalisis file CV PDF yang diunggah pengguna dan mengoptimalkannya agar lolos sistem ATS (Applicant Tracking System). Anda harus merespons dalam format JSON terstruktur dengan kunci: atsScoreBefore (angka), atsScoreAfter (angka), keyChanges (array string), tips (array string), dan optimizedCV (string markdown yang rapi menggunakan standar Bahasa Indonesia formal). Struktur markdown optimizedCV harus menggunakan format ATS standar tanpa elemen dekoratif visual, tabel, atau layout kolom ganda, melainkan format satu kolom linier yang bersih.`;
+    const systemInstruction = `Anda adalah seorang HR Expert, Rekruter Profesional, dan Spesialis CV ATS. Tugas Anda adalah menganalisis file CV PDF yang diunggah pengguna dan mengoptimalkannya agar lolos sistem ATS (Applicant Tracking System). Anda harus merespons dalam format JSON terstruktur dengan kunci: atsScoreBefore (angka), atsScoreAfter (angka), keyChanges (array string), tips (array string), dan optimizedCV (string markdown yang rapi menggunakan standar formal). Struktur markdown optimizedCV harus menggunakan format ATS standar tanpa elemen dekoratif visual, tabel, atau layout kolom ganda, melainkan format satu kolom linier yang bersih. Gunakan ${langInstructions} sesuai permintaan pengguna.`;
 
     const response = await ai.models.generateContent({
       model: GEMINI_MODEL,

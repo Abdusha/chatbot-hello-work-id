@@ -368,6 +368,7 @@ async function runCvOptimization() {
     dom.loadingState.classList.add('flex');
 
     state.jobDescription = dom.jobDescInput.value.trim();
+    const selectedLang = document.querySelector('input[name="language-toggle"]:checked').value;
 
     try {
         const response = await fetch('/api/cv-optimize', {
@@ -377,7 +378,8 @@ async function runCvOptimization() {
             },
             body: JSON.stringify({
                 cvBase64: state.fileBase64,
-                jobDescription: state.jobDescription
+                jobDescription: state.jobDescription,
+                language: selectedLang
             })
         });
 
