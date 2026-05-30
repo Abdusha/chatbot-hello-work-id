@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
+import puppeteer from 'puppeteer';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -45,7 +46,7 @@ app.post('/api/chat', async (req, res) => {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+    if (!apiKey) {
       return res.status(500).json({
         error: {
           message: 'Gemini API Key belum dikonfigurasi di server. Mohon atur variabel GEMINI_API_KEY di file .env Anda.'
@@ -126,11 +127,171 @@ app.post('/api/chat', async (req, res) => {
       usageMetadata: response.usageMetadata,
     });
 
+
   } catch (error) {
     console.error('❌ Server-side Gemini API Error:', error);
     return res.status(500).json({
       error: {
         message: error.message || 'Terjadi kesalahan internal pada server proxy.'
+      }
+    });
+  }
+});
+
+// API Endpoint to optimize CV for ATS
+app.post('/api/cv-optimize', async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({
+        error: {
+          message: 'Gemini API Key belum dikonfigurasi di server. Mohon atur variabel GEMINI_API_KEY di file .env Anda.'
+        }
+      });
+    }
+
+    const { cvBase64, jobDescription } = req.body;
+
+    if (!cvBase64) {
+      return res.status(400).json({
+        error: {
+          message: 'Berkas CV diperlukan.'
+        }
+      });
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    // Build the request contents with the PDF base64 and target job description
+    const contents = [
+      {
+        role: 'user',
+        parts: [
+          {
+            inlineData: {
+              mimeType: 'application/pdf',
+              data: cvBase64
+            }
+          },
+          {
+            text: `Tolong optimasi CV PDF saya agar menjadi sangat ramah ATS (ATS-friendly) dan profesional untuk pasar kerja Indonesia.
+            
+Target Lowongan Kerja / Deskripsi Pekerjaan (jika ada):
+${jobDescription || 'Tidak ada deskripsi pekerjaan spesifik. Optimasikan secara umum agar profesional.'}
+
+Ketentuan Output:
+1. Evaluasi CV asli dan berikan estimasi skor ATS (0-100) sebelum dioptimasi.
+2. Tulis ulang isi CV agar ramah ATS dengan menggunakan bahasa Indonesia yang profesional (formal), struktur yang bersih (Summary, Work Experience, Education, Skills), kalimat yang diawali dengan kata kerja aksi (action verbs) yang kuat, dan masukkan kata kunci (keywords) yang relevan dengan target pekerjaan.
+3. Estimasi skor ATS (0-100) setelah optimasi (seharusnya jauh lebih tinggi).
+4. Berikan daftar perubahan utama (keyChanges) dan tips tambahan (tips) untuk pengguna.
+5. Anda HARUS mengembalikan respons dalam format JSON yang valid dengan struktur berikut (jangan tambahkan teks lain di luar JSON):
+{
+  "atsScoreBefore": 45,
+  "atsScoreAfter": 85,
+  "keyChanges": ["Penjelasan perubahan 1", "Penjelasan perubahan 2"],
+  "tips": ["Tips 1", "Tips 2"],
+  "optimizedCV": "# [NAMA LENGKAP]\\n\\n[Kontak: Telepon, Email, LinkedIn]\\n\\n## Ringkasan Profesional\\n[Deskripsi singkat]\\n\\n## Pengalaman Kerja\\n### [Nama Perusahaan] - [Jabatan]\\n[Bulan Tahun - Bulan Tahun]\\n- [Bullet point menggunakan action verb & hasil terukur]\\n\\n## Pendidikan\\n### [Nama Institusi] - [Gelar]\\n[Tahun Kelulusan]\\n\\n## Keahlian\\n- [Keahlian Teknis/Soft Skills]"
+}`
+          }
+        ]
+      }
+    ];
+
+    const systemInstruction = `Anda adalah seorang HR Expert, Rekruter Profesional, dan Spesialis CV ATS di Indonesia. Tugas Anda adalah menganalisis file CV PDF yang diunggah pengguna dan mengoptimalkannya agar lolos sistem ATS (Applicant Tracking System). Anda harus merespons dalam format JSON terstruktur dengan kunci: atsScoreBefore (angka), atsScoreAfter (angka), keyChanges (array string), tips (array string), dan optimizedCV (string markdown yang rapi menggunakan standar Bahasa Indonesia formal). Struktur markdown optimizedCV harus menggunakan format ATS standar tanpa elemen dekoratif visual, tabel, atau layout kolom ganda, melainkan format satu kolom linier yang bersih.`;
+
+    const response = await ai.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: contents,
+      config: {
+        temperature: 0.2,
+        responseMimeType: 'application/json',
+        systemInstruction: systemInstruction,
+      }
+    });
+
+    let botText = '';
+    try {
+      botText = response.text || '';
+    } catch (e) {
+      const parts = response.candidates?.[0]?.content?.parts;
+      if (Array.isArray(parts)) {
+        botText = parts
+          .filter((p) => !p.thought)
+          .map((p) => p.text)
+          .join('\n');
+      }
+    }
+
+    // Try parsing to verify it is valid JSON, if not, try to extract JSON block
+    let responseData;
+    try {
+      responseData = JSON.parse(botText);
+    } catch (err) {
+      console.log('⚠️ Failed to parse response directly as JSON, trying regex extraction.');
+      const jsonMatch = botText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        responseData = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Sistem gagal memformat respons AI ke dalam format JSON yang valid.');
+      }
+    }
+
+    return res.json(responseData);
+
+  } catch (error) {
+    console.error('❌ CV Optimization Error:', error);
+    return res.status(500).json({
+      error: {
+        message: error.message || 'Terjadi kesalahan saat memproses optimasi CV.'
+      }
+    });
+  }
+});
+
+// API Endpoint to generate PDF from HTML using Puppeteer
+app.post('/api/generate-pdf', async (req, res) => {
+  try {
+    const { htmlContent } = req.body;
+    if (!htmlContent) {
+      return res.status(400).json({
+        error: {
+          message: 'Konten HTML diperlukan untuk membuat PDF.'
+        }
+      });
+    }
+
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    
+    // Set content and wait until resources are loaded
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    
+    // Generate PDF buffer
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: {
+        top: '20mm',
+        right: '20mm',
+        bottom: '20mm',
+        left: '20mm'
+      },
+      printBackground: true
+    });
+
+    await browser.close();
+
+    res.contentType('application/pdf');
+    res.send(Buffer.from(pdfBuffer));
+
+  } catch (error) {
+    console.error('❌ PDF Generation Error:', error);
+    return res.status(500).json({
+      error: {
+        message: error.message || 'Gagal menghasilkan berkas PDF.'
       }
     });
   }

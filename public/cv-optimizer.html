@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Abdusha">
+    <meta name="description" content="Hello Work ID - AI CV ATS Optimizer">
+    <meta name="keywords" content="Hello Work ID, CV ATS, ATS Resume, CV Optimizer, AI Career Assistant">
+    <meta property="og:title" content="Hello Work ID - AI CV ATS Optimizer">
+    <meta property="og:description" content="Optimalkan CV Anda agar ramah sistem ATS secara otomatis menggunakan AI.">
+    <meta property="og:image" content="icon.svg">
+    <meta property="og:url" content="https://hello-work-id.vercel.app/cv-optimizer.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Hello Work ID">
+    <meta property="og:locale" content="id_ID">
+
+    <title>Hello Work ID - AI CV ATS Optimizer</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" type="image/png" href="icon-light-32x32.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="icon-dark-32x32.png" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="apple-icon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-background min-h-screen flex flex-col font-sans">
+    <!-- Navbar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="chat.html" class="flex items-center gap-2">
+                    <span class="text-2xl">📄</span>
+                    <span class="font-extrabold text-xl tracking-tight text-slate-800">Hello Work <span class="text-teal-600">ID</span></span>
+                </a>
+                <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2.5 py-0.5 rounded">ATS Optimizer</span>
+            </div>
+            <div>
+                <a href="chat.html" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Kembali ke Chat
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Optimasi CV Anda Menjadi ATS-Friendly</h1>
+            <p class="text-slate-600 text-base sm:text-lg">Unggah CV Anda dalam format PDF, masukkan deskripsi pekerjaan impian Anda, dan biarkan AI kami mengoptimalkannya untuk meningkatkan peluang Anda lolos seleksi berkas.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Panel: Input Form -->
+            <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+                <!-- File Upload Area -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Unggah CV PDF Anda</label>
+                    <div id="drop-zone" class="border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-colors bg-slate-50 hover:bg-teal-50/20">
+                        <div class="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-2xl text-teal-600 shadow-sm" id="upload-icon">
+                            📤
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-slate-800" id="upload-title">Tarik & lepas file di sini, atau <span class="text-teal-600 hover:underline">pilih file</span></p>
+                            <p class="text-xs text-slate-500 mt-1">Hanya mendukung berkas PDF. Maksimal 3.5 MB.</p>
+                        </div>
+                        <input type="file" id="cv-file-input" accept="application/pdf" class="hidden">
+                    </div>
+
+                    <!-- File Preview (Hidden initially) -->
+                    <div id="optimizer-file-preview" class="hidden items-center justify-between p-3 mt-3 bg-teal-50 border border-teal-100 rounded-lg">
+                        <div class="flex items-center gap-2.5 overflow-hidden">
+                            <span class="text-xl flex-shrink-0">📄</span>
+                            <span id="optimizer-file-name" class="text-sm font-medium text-slate-700 truncate">nama_file_cv.pdf</span>
+                        </div>
+                        <button id="btn-remove-file" class="text-teal-600 hover:text-teal-800 text-lg font-bold p-1">&times;</button>
+                    </div>
+                </div>
+
+                <!-- Job Description Input -->
+                <div>
+                    <label for="job-desc-input" class="block text-sm font-semibold text-slate-700 mb-1">Deskripsi Pekerjaan Target <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                    <p class="text-xs text-slate-500 mb-2">Tempelkan deskripsi pekerjaan atau kualifikasi dari lowongan yang Anda incar agar AI bisa menyesuaikan kata kunci (keywords) yang tepat.</p>
+                    <textarea id="job-desc-input" rows="6" class="w-full border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 placeholder-slate-400 resize-none transition-all" placeholder="Contoh: Kualifikasi: Min. 2 tahun pengalaman React, Node.js, REST API, MySQL..."></textarea>
+                </div>
+
+                <!-- Optimize Button -->
+                <button id="btn-optimize" disabled class="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-slate-200 text-white disabled:text-slate-400 font-semibold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                    <span>⚡ Mulai Optimasi CV</span>
+                </button>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                <!-- Empty State (Shown initially) -->
+                <div id="result-empty-state" class="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm flex flex-col items-center justify-center gap-4 min-h-[450px]">
+                    <div class="text-5xl animate-bounce">🤖</div>
+                    <h3 class="text-lg font-bold text-slate-800">Menunggu CV Anda</h3>
+                    <p class="text-sm text-slate-500 max-w-sm">Unggah file CV PDF di panel sebelah kiri dan klik "Mulai Optimasi CV" untuk melihat hasilnya di sini.</p>
+                </div>
+
+                <!-- Loading State (Hidden initially) -->
+                <div id="result-loading-state" class="hidden bg-white border border-slate-200 rounded-2xl p-8 shadow-sm min-h-[450px] flex-col justify-center items-center gap-6">
+                    <div class="flex items-center justify-center">
+                        <div class="relative w-20 h-20">
+                            <div class="absolute top-0 left-0 w-full h-full rounded-full border-4 border-slate-100"></div>
+                            <div class="absolute top-0 left-0 w-full h-full rounded-full border-4 border-teal-600 border-t-transparent animate-spin"></div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">Sedang Mengoptimalkan CV Anda...</h3>
+                        <p class="text-sm text-slate-500 max-w-xs mx-auto">AI sedang menganalisis konten, merestrukturisasi bagian CV, dan menyesuaikan kata kunci untuk sistem ATS. Proses ini memakan waktu 10-20 detik.</p>
+                    </div>
+                </div>
+
+                <!-- Result Content Panel (Hidden initially) -->
+                <div id="result-content-panel" class="hidden flex flex-col gap-6">
+                    <!-- ATS Score Section -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-sm font-semibold text-slate-800 mb-4">Analisis Kecocokan ATS (ATS Score)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Score Before -->
+                            <div class="flex flex-col gap-2">
+                                <div class="flex justify-between text-xs font-semibold text-slate-500">
+                                    <span>Skor ATS Asli (Estimasi)</span>
+                                    <span id="score-before-text">45%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                    <div id="score-before-bar" class="bg-rose-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                                </div>
+                                <p class="text-[11px] text-slate-400">CV asli Anda memiliki beberapa kendala formatting atau minim kata kunci relevan.</p>
+                            </div>
+
+                            <!-- Score After -->
+                            <div class="flex flex-col gap-2">
+                                <div class="flex justify-between text-xs font-semibold text-slate-500">
+                                    <span>Skor ATS Hasil Optimasi</span>
+                                    <span id="score-after-text" class="text-teal-600">85%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                    <div id="score-after-bar" class="bg-teal-500 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                                </div>
+                                <p class="text-[11px] text-slate-400">CV baru Anda kini terstruktur rapi dan memiliki kata kunci yang tepat untuk parser ATS.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optimized Resume Output & Actions -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                        <!-- Toolbar -->
+                        <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-600 text-xs font-bold bg-green-100 px-2.5 py-0.5 rounded flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Siap Digunakan
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="btn-copy-text" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer">
+                                    📋 Salin Teks
+                                </button>
+                                <button id="btn-download-pdf" class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer">
+                                    📥 Unduh PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Rendered Output Screen -->
+                        <div class="p-6 md:p-8 overflow-y-auto max-h-[550px] bg-white prose max-w-none text-slate-800" id="resume-render-area">
+                            <!-- AI Generated Resume will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & AI Tips -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Key Changes -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                            <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                                <span class="text-teal-500">🔄</span> Perubahan Utama
+                            </h4>
+                            <ul class="text-xs text-slate-600 flex flex-col gap-2.5 list-disc pl-4" id="list-key-changes">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+
+                        <!-- AI Tips -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                            <h4 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+                                <span class="text-amber-500">💡</span> Tips Rekruter
+                            </h4>
+                            <ul class="text-xs text-slate-600 flex flex-col gap-2.5 list-disc pl-4" id="list-tips">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[99999] flex flex-col gap-3 max-w-md w-full"></div>
+
+    <!-- Hidden Printable Sandbox for PDF Export -->
+    <div id="pdf-sandbox" class="hidden"></div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+            &copy; 2026 Hello Work ID. Dibuat dengan cinta untuk karir Indonesia yang lebih cemerlang.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="cv-optimizer.js" defer></script>
+</body>
+
+</html>
