@@ -38,7 +38,7 @@ const dom = {
     scoreAfterText: document.getElementById('score-after-text'),
     scoreAfterBar: document.getElementById('score-after-bar'),
 
-    btnCopyText: document.getElementById('btn-copy-text'),
+    btnDownloadDocx: document.getElementById('btn-download-docx'),
     btnDownloadPdf: document.getElementById('btn-download-pdf'),
     resumeRenderArea: document.getElementById('resume-render-area'),
     listKeyChanges: document.getElementById('list-key-changes'),
@@ -273,6 +273,9 @@ function convertMarkdownToCleanPrintHtml(text) {
         <meta charset="utf-8">
         <title>CV ATS Optimized</title>
         <style>
+            * {
+                box-sizing: border-box;
+            }
             body {
                 font-family: Arial, Helvetica, sans-serif;
                 font-size: 10.5pt;
@@ -284,9 +287,10 @@ function convertMarkdownToCleanPrintHtml(text) {
             }
             .cv-container {
                 width: 100%;
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 10px;
+                margin: 0;
+                padding: 0;
+                overflow-wrap: break-word;
+                word-wrap: break-word;
             }
             h1.name {
                 font-size: 18pt;
@@ -299,7 +303,7 @@ function convertMarkdownToCleanPrintHtml(text) {
             }
             p {
                 margin: 0 0 8px 0;
-                text-align: justify;
+                text-align: left;
             }
             /* Clean contact info block usually below name */
             .cv-container > p:first-of-type,
@@ -333,7 +337,7 @@ function convertMarkdownToCleanPrintHtml(text) {
             }
             li {
                 margin-bottom: 4px;
-                text-align: justify;
+                text-align: left;
             }
             em {
                 font-style: italic;
@@ -479,29 +483,155 @@ function setScoreColorClass(element, score) {
 }
 
 // ============================================================================
-// EXPORTS & COPY TO CLIPBOARD
+// EXPORTS & DOWNLOAD DOCX
 // ============================================================================
-function copyTextToClipboard() {
+
+/**
+ * Convert optimized CV markdown text to Word-compatible HTML with inline styles.
+ * Word's HTML renderer poorly handles CSS classes/selectors, so every element
+ * gets explicit inline styling to guarantee consistent Arial font and layout.
+ */
+function convertMarkdownToWordHtml(text) {
+    if (!text) return '';
+
+    // Escape HTML entities
+    let content = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    // Bold (**text**)
+    content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    // Italic (*text*)
+    content = content.replace(/\*(.*?)\*/g, '<i>$1</i>');
+
+    const lines = content.split('\n');
+    let html = '';
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        if (!trimmed) {
+            // Close any open list before adding empty line
+            if (inList) {
+                html += '</ul>\n';
+                inList = false;
+            }
+            continue;
+        }
+
+        // H1 - Name (centered, uppercase, 18pt)
+        if (trimmed.startsWith('# ')) {
+            if (inList) { html += '</ul>\n'; inList = false; }
+            const heading = trimmed.substring(2);
+            html += `<h1 style="font-family:Arial,Helvetica,sans-serif; font-size:18pt; text-align:center; text-transform:uppercase; margin:0 0 5px 0; font-weight:bold; letter-spacing:0.5px;">${heading}</h1>\n`;
+            continue;
+        }
+
+        // H2 - Section title (uppercase, 12pt, underline border)
+        if (trimmed.startsWith('## ')) {
+            if (inList) { html += '</ul>\n'; inList = false; }
+            const heading = trimmed.substring(3);
+            html += `<h2 style="font-family:Arial,Helvetica,sans-serif; font-size:12pt; text-transform:uppercase; border-bottom:1px solid #111111; margin:20px 0 10px 0; padding-bottom:2px; font-weight:bold; letter-spacing:0.5px;">${heading}</h2>\n`;
+            continue;
+        }
+
+        // H3 - Entry title (bold, 10.5pt)
+        if (trimmed.startsWith('### ')) {
+            if (inList) { html += '</ul>\n'; inList = false; }
+            const heading = trimmed.substring(4);
+            html += `<h3 style="font-family:Arial,Helvetica,sans-serif; font-size:10.5pt; margin:10px 0 4px 0; font-weight:bold;">${heading}</h3>\n`;
+            continue;
+        }
+
+        // Bullet points
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+            const listContent = trimmed.substring(2);
+            if (!inList) {
+                html += '<ul style="margin:0 0 10px 0; padding-left:20px;">\n';
+                inList = true;
+            }
+            html += `<li style="font-family:Arial,Helvetica,sans-serif; font-size:10.5pt; line-height:1.4; margin-bottom:4px; text-align:left;">${listContent}</li>\n`;
+            continue;
+        }
+
+        // Regular paragraph
+        if (inList) { html += '</ul>\n'; inList = false; }
+        html += `<p style="font-family:Arial,Helvetica,sans-serif; font-size:10.5pt; line-height:1.4; margin:0 0 8px 0; text-align:left;">${trimmed}</p>\n`;
+    }
+
+    // Close any remaining open list
+    if (inList) {
+        html += '</ul>\n';
+    }
+
+    return html;
+}
+
+function downloadDocx() {
     if (!state.result || !state.result.optimizedCV) return;
 
-    // Create a temporary textarea to hold raw markdown text
-    const textarea = document.createElement('textarea');
-    textarea.value = state.result.optimizedCV;
-    document.body.appendChild(textarea);
-    textarea.select();
-    
     try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-            showToast('Isi CV berhasil disalin ke clipboard!');
-        } else {
-            showToast('Gagal menyalin CV.', 'error');
+        const bodyContent = convertMarkdownToWordHtml(state.result.optimizedCV);
+
+        const docContent = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!--[if gte mso 9]>
+    <xml>
+        <w:WordDocument>
+            <w:View>Print</w:View>
+            <w:Zoom>100</w:Zoom>
+            <w:DoNotOptimizeForBrowser/>
+        </w:WordDocument>
+    </xml>
+    <![endif]-->
+    <style>
+        @page {
+            size: A4;
+            margin: 2.54cm 2.54cm 2.54cm 2.54cm;
         }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10.5pt;
+            line-height: 1.4;
+            color: #000000;
+            margin: 0;
+            padding: 0;
+        }
+        /* Fallback selectors in case inline styles are stripped */
+        h1, h2, h3, p, li, ul, ol, b, i, em, strong, span, div, td, th {
+            font-family: Arial, Helvetica, sans-serif !important;
+        }
+    </style>
+</head>
+<body style="font-family:Arial,Helvetica,sans-serif; font-size:10.5pt; line-height:1.4; color:#000000;">
+${bodyContent}
+</body>
+</html>`;
+
+        const blob = new Blob(['\ufeff' + docContent], {
+            type: 'application/msword'
+        });
+        const downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `CV_ATS_Optimized_${state.file ? state.file.name.replace('.pdf', '') : 'Resume'}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(downloadUrl);
+        a.remove();
+
+        showToast('File DOCX berhasil diunduh! Buka dengan Microsoft Word untuk mengedit.');
     } catch (err) {
-        showToast('Browser tidak mendukung copy otomatis.', 'error');
+        console.error('❌ DOCX Download Error:', err);
+        showToast('Gagal mengunduh file DOCX.', 'error');
     }
-    
-    document.body.removeChild(textarea);
 }
 
 async function downloadPdf() {
@@ -600,8 +730,8 @@ function setupEventListeners() {
     // Run optimize button click
     dom.btnOptimize.addEventListener('click', runCvOptimization);
 
-    // Copy to clipboard
-    dom.btnCopyText.addEventListener('click', copyTextToClipboard);
+    // Download DOCX
+    dom.btnDownloadDocx.addEventListener('click', downloadDocx);
 
     // Download PDF
     dom.btnDownloadPdf.addEventListener('click', downloadPdf);

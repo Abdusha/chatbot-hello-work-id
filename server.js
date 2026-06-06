@@ -197,7 +197,7 @@ ${jobDescription || 'Tidak ada deskripsi pekerjaan spesifik. Optimasikan secara 
 
 Ketentuan Output:
 1. Evaluasi CV asli dan berikan estimasi skor ATS (0-100) sebelum dioptimasi.
-2. Tulis ulang isi CV agar ramah ATS dengan menggunakan ${langInstructions} yang profesional (formal), struktur yang bersih (Summary, Work Experience, Education, Skills), kalimat yang diawali dengan kata kerja aksi (action verbs) yang kuat, dan masukkan kata kunci (keywords) yang relevan dengan target pekerjaan.
+2. Tulis ulang isi CV agar ramah ATS dengan menggunakan ${langInstructions} yang profesional (formal), struktur yang bersih (Profil, Work Experience, Education, Skills), kalimat yang diawali dengan kata kerja aksi (action verbs) yang kuat, dan masukkan kata kunci (keywords) yang relevan dengan target pekerjaan.
 3. Estimasi skor ATS (0-100) setelah optimasi (seharusnya jauh lebih tinggi).
 4. Berikan daftar perubahan utama (keyChanges) dan tips tambahan (tips) untuk pengguna.
 5. Anda HARUS mengembalikan respons dalam format JSON yang valid dengan struktur berikut (jangan tambahkan teks lain di luar JSON):
@@ -206,7 +206,7 @@ Ketentuan Output:
   "atsScoreAfter": 85,
   "keyChanges": ["Penjelasan perubahan 1", "Penjelasan perubahan 2"],
   "tips": ["Tips 1", "Tips 2"],
-  "optimizedCV": "# [NAMA LENGKAP]\\n\\n[Kontak: Telepon, Email, LinkedIn]\\n\\n## Ringkasan Profesional\\n[Deskripsi singkat]\\n\\n## Pengalaman Kerja\\n### [Nama Perusahaan] - [Jabatan]\\n[Bulan Tahun - Bulan Tahun]\\n- [Bullet point menggunakan action verb & hasil terukur]\\n\\n## Pendidikan\\n### [Nama Institusi] - [Gelar]\\n[Tahun Kelulusan]\\n\\n## Keahlian\\n- [Keahlian Teknis/Soft Skills]"
+  "optimizedCV": "# [NAMA LENGKAP]\\n\\n[Kontak: Telepon, Email, LinkedIn]\\n\\n## Profil\\n[Deskripsi singkat]\\n\\n## Pengalaman Kerja\\n### [Nama Perusahaan] - [Jabatan]\\n[Bulan Tahun - Bulan Tahun]\\n- [Bullet point menggunakan action verb & hasil terukur]\\n\\n## Pendidikan\\n### [Nama Institusi] - [Gelar]\\n[Tahun Kelulusan]\\n\\n## Keahlian\\n- [Keahlian Teknis/Soft Skills]"
 }`
           }
         ]
