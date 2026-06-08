@@ -190,20 +190,28 @@ app.post('/api/cv-optimize', async (req, res) => {
             }
           },
           {
-            text: `Tolong optimasi CV PDF saya agar menjadi sangat ramah ATS (ATS-friendly) dan profesional.
+            text: `Tolong evaluasi dan optimasi CV PDF saya agar menjadi sangat ramah ATS (ATS-friendly) dan profesional.
             
 Target Lowongan Kerja / Deskripsi Pekerjaan (jika ada):
 ${jobDescription || 'Tidak ada deskripsi pekerjaan spesifik. Optimasikan secara umum agar profesional.'}
 
-Ketentuan Output:
-1. Evaluasi CV asli dan berikan estimasi skor ATS (0-100) sebelum dioptimasi.
-2. Tulis ulang isi CV agar ramah ATS dengan menggunakan ${langInstructions} yang profesional (formal), struktur yang bersih (Profil, Work Experience, Education, Skills), kalimat yang diawali dengan kata kerja aksi (action verbs) yang kuat, dan masukkan kata kunci (keywords) yang relevan dengan target pekerjaan.
-3. Estimasi skor ATS (0-100) setelah optimasi (seharusnya jauh lebih tinggi).
-4. Berikan daftar perubahan utama (keyChanges) dan tips tambahan (tips) untuk pengguna.
-5. Anda HARUS mengembalikan respons dalam format JSON yang valid dengan struktur berikut (jangan tambahkan teks lain di luar JSON):
+Ketentuan Evaluasi & Output:
+1. Evaluasi CV asli secara objektif menggunakan rubrik penilaian ATS berikut (total maks 100):
+   a. Tata Letak & Struktur (Maks 30 poin): Format satu kolom linier bersih tanpa tabel, gambar, grafik, kolom ganda, atau elemen dekoratif (15 poin) serta menggunakan judul bagian standar seperti Profil/Summary, Work Experience, Education, Skills (15 poin).
+   b. Kata Kerja Aksi & Metrik (Maks 30 poin): Kalimat deskripsi pekerjaan diawali kata kerja aksi kuat (15 poin) dan mencantumkan hasil pencapaian terukur dengan angka/persentase (15 poin).
+   c. Kata Kunci & Relevansi (Maks 30 poin): Memiliki kata kunci yang sangat relevan dengan target pekerjaan (atau relevan dengan peran/industri secara umum jika deskripsi kosong).
+   d. Informasi Kontak (Maks 10 poin): Menyertakan nama, email, nomor telepon, dan lokasi/LinkedIn dengan jelas.
+2. Tentukan estimasi skor ATS CV asli sebelum optimasi (atsScoreBefore) berdasarkan evaluasi jujur dari rubrik di atas.
+   - PENTING: Jika CV asli yang diunggah sudah sangat baik dan memenuhi kriteria ATS (misalnya jika pengguna mengunggah kembali berkas yang sudah dioptimasi sebelumnya), berikan skor atsScoreBefore yang tinggi (85-95%). Jangan sengaja menurunkannya.
+3. Lakukan optimasi pada isi CV jika diperlukan. Tulis ulang isi CV menggunakan ${langInstructions} yang formal dan profesional.
+   - PENTING: Jika CV asli sudah sangat optimal dan mendapatkan skor >= 90%, Anda TIDAK PERLU mengubah isi CV secara signifikan. Cukup kembalikan konten asli CV tersebut di dalam "optimizedCV", dan pada "keyChanges" isi dengan penjelasan bahwa CV asli sudah sangat optimal sehingga tidak memerlukan perubahan.
+   - LARANGAN PLACEHOLDER: JANGAN PERNAH menambahkan teks placeholder yang perlu diisi pengguna (seperti '[X]%', '[Jumlah]', '[Nama Perusahaan]', '[Tahun]', dll) ke dalam "optimizedCV". Jika di CV asli tidak terdapat data kuantitatif (seperti persentase/angka pencapaian), tulis deskripsi pekerjaan secara kualitatif profesional di "optimizedCV", dan berikan saran spesifik untuk menambahkan metrik kuantitatif tersebut di dalam bagian "tips" saja. CV yang dihasilkan harus siap diunduh dan langsung digunakan tanpa ada placeholder yang menggantung.
+4. Tentukan estimasi skor ATS setelah optimasi (atsScoreAfter). Jika CV asli sudah optimal, skor atsScoreAfter bisa sama atau hampir sama dengan atsScoreBefore.
+5. Berikan daftar perubahan utama (keyChanges) dan tips tambahan (tips) untuk pengguna.
+6. Anda HARUS mengembalikan respons dalam format JSON yang valid dengan struktur berikut (jangan tambahkan teks lain di luar JSON):
 {
-  "atsScoreBefore": 45,
-  "atsScoreAfter": 85,
+  "atsScoreBefore": 85,
+  "atsScoreAfter": 92,
   "keyChanges": ["Penjelasan perubahan 1", "Penjelasan perubahan 2"],
   "tips": ["Tips 1", "Tips 2"],
   "optimizedCV": "# [NAMA LENGKAP]\\n\\n[Kontak: Telepon, Email, LinkedIn]\\n\\n## Profil\\n[Deskripsi singkat]\\n\\n## Pengalaman Kerja\\n### [Nama Perusahaan] - [Jabatan]\\n[Bulan Tahun - Bulan Tahun]\\n- [Bullet point menggunakan action verb & hasil terukur]\\n\\n## Pendidikan\\n### [Nama Institusi] - [Gelar]\\n[Tahun Kelulusan]\\n\\n## Keahlian\\n- [Keahlian Teknis/Soft Skills]"
@@ -213,7 +221,7 @@ Ketentuan Output:
       }
     ];
 
-    const systemInstruction = `Anda adalah seorang HR Expert, Rekruter Profesional, dan Spesialis CV ATS. Tugas Anda adalah menganalisis file CV PDF yang diunggah pengguna dan mengoptimalkannya agar lolos sistem ATS (Applicant Tracking System). Anda harus merespons dalam format JSON terstruktur dengan kunci: atsScoreBefore (angka), atsScoreAfter (angka), keyChanges (array string), tips (array string), dan optimizedCV (string markdown yang rapi menggunakan standar formal). Struktur markdown optimizedCV harus menggunakan format ATS standar tanpa elemen dekoratif visual, tabel, atau layout kolom ganda, melainkan format satu kolom linier yang bersih. Gunakan ${langInstructions} sesuai permintaan pengguna.`;
+    const systemInstruction = `Anda adalah seorang HR Expert, Rekruter Profesional, dan Spesialis CV ATS. Tugas Anda adalah menganalisis file CV PDF yang diunggah pengguna dan mengoptimalkannya agar lolos sistem ATS (Applicant Tracking System). Anda harus menilai CV secara objektif sesuai rubrik penilaian (Tata Letak, Kata Kerja Aksi/Metrik, Kata Kunci/Relevansi, Informasi Kontak). Jika CV asli sudah berkualitas tinggi atau merupakan hasil optimasi sebelumnya, berikan skor atsScoreBefore yang tinggi secara jujur dan jangan melakukan perubahan isi CV jika tidak diperlukan. Anda dilarang keras menggunakan placeholder (seperti [X]% atau [Jumlah]) di dalam "optimizedCV"; jika data kuantitatif tidak ada di CV asli, tulislah secara kualitatif di CV dan berikan rekomendasi penambahan metrik tersebut di bagian "tips". Anda harus merespons dalam format JSON terstruktur dengan kunci: atsScoreBefore (angka), atsScoreAfter (angka), keyChanges (array string), tips (array string), dan optimizedCV (string markdown yang rapi menggunakan standar formal). Struktur markdown optimizedCV harus menggunakan format ATS standar satu kolom linier yang bersih. Gunakan ${langInstructions} sesuai permintaan pengguna.`;
 
     const response = await ai.models.generateContent({
       model: GEMINI_MODEL,
