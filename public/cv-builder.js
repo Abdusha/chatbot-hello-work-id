@@ -8,40 +8,17 @@
 // ============================================================================
 const defaultState = {
     personal: {
-        fullname: 'Budi Santoso',
-        jobtitle: 'Senior Software Engineer',
-        email: 'budi.santoso@email.com',
-        phone: '+62 812-3456-7890',
-        linkedin: 'linkedin.com/in/budisantoso',
-        location: 'Jakarta, Indonesia'
+        fullname: '',
+        jobtitle: '',
+        email: '',
+        phone: '',
+        linkedin: '',
+        location: ''
     },
-    profile: 'Software Engineer berpengalaman lebih dari 5 tahun dalam pengembangan sistem backend berskala besar dan aplikasi web modern. Ahli dalam merancang RESTful API, arsitektur microservices, dan optimalisasi database. Terbukti berhasil meningkatkan performa aplikasi sebesar 40% dan mempercepat waktu deployment dengan otomatisasi CI/CD.',
-    experiences: [
-        {
-            id: 'exp-1',
-            company: 'PT Teknologi Jaya',
-            role: 'Senior Software Engineer',
-            period: 'Januari 2023 - Sekarang',
-            description: '- Memimpin tim beranggotakan 5 developer untuk membangun platform e-commerce berbasis microservices.\n- Mengoptimalkan kueri database PostgreSQL yang mengurangi waktu muat halaman sebesar 35%.\n- Mengimplementasikan pipeline CI/CD menggunakan GitHub Actions untuk mempercepat siklus rilis produk.'
-        },
-        {
-            id: 'exp-2',
-            company: 'Solusi Digital Pratama',
-            role: 'Software Engineer',
-            period: 'Juli 2020 - Desember 2022',
-            description: '- Mengembangkan dan memelihara 10+ modul backend menggunakan Node.js dan Express.\n- Berkolaborasi dengan tim frontend untuk mengintegrasikan RESTful API dengan aplikasi React.\n- Menulis unit test dengan Jest untuk menjamin kualitas kode dengan cakupan (coverage) minimal 80%.'
-        }
-    ],
-    educationList: [
-        {
-            id: 'edu-1',
-            school: 'Universitas Indonesia',
-            degree: 'Sarjana Ilmu Komputer',
-            period: '2016 - 2020',
-            description: 'Lulus dengan IPK 3.82/4.00 (Cum Laude). Aktif di Himpunan Mahasiswa Ilmu Komputer.'
-        }
-    ],
-    skills: 'JavaScript, TypeScript, Node.js, Express, React, PostgreSQL, MongoDB, Redis, Docker, Git, CI/CD',
+    profile: '',
+    experiences: [],
+    educationList: [],
+    skills: '',
     isDownloadingPdf: false
 };
 
@@ -449,9 +426,54 @@ function generateCvMarkdown() {
 // ============================================================================
 // DOM RENDERING & SYNCING
 // ============================================================================
+function isStateEmpty() {
+    const p = state.personal;
+    const hasPersonal = p.fullname || p.jobtitle || p.email || p.phone || p.linkedin || p.location;
+    const hasProfile = state.profile && state.profile.trim();
+    const hasExperiences = state.experiences.length > 0;
+    const hasEducation = state.educationList.length > 0;
+    const hasSkills = state.skills && state.skills.trim();
+    return !hasPersonal && !hasProfile && !hasExperiences && !hasEducation && !hasSkills;
+}
+
+function getEmptyStateHtml() {
+    return `
+        <div class="flex flex-col items-center justify-center text-center py-16 px-6 select-none" style="min-height: 400px;">
+            <div class="mb-6 opacity-80">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="25" y="10" width="70" height="95" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+                    <rect x="35" y="24" width="50" height="6" rx="3" fill="#cbd5e1"/>
+                    <rect x="42" y="34" width="36" height="4" rx="2" fill="#e2e8f0"/>
+                    <rect x="35" y="48" width="50" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="35" y="55" width="45" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="35" y="62" width="48" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="35" y="76" width="50" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="35" y="83" width="40" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <rect x="35" y="90" width="44" height="3" rx="1.5" fill="#e2e8f0"/>
+                    <circle cx="88" cy="92" r="20" fill="#ccfbf1" stroke="#5eead4" stroke-width="2"/>
+                    <path d="M82 92 L86 96 L94 88" stroke="#14b8a6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-400 mb-2">Pratinjau CV Anda Akan Muncul Di Sini</h3>
+            <p class="text-sm text-slate-400 max-w-xs leading-relaxed">
+                Mulai isi formulir di sebelah kiri — nama, ringkasan, pengalaman, pendidikan, dan keahlian Anda. 
+                Pratinjau akan diperbarui secara otomatis saat Anda mengetik.
+            </p>
+            <div class="mt-6 flex items-center gap-2 text-xs text-teal-500 font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                Menunggu input...
+            </div>
+        </div>
+    `;
+}
+
 function updatePreview() {
-    const md = generateCvMarkdown();
-    dom.resumeRenderArea.innerHTML = formatMarkdown(md);
+    if (isStateEmpty()) {
+        dom.resumeRenderArea.innerHTML = getEmptyStateHtml();
+    } else {
+        const md = generateCvMarkdown();
+        dom.resumeRenderArea.innerHTML = formatMarkdown(md);
+    }
     saveToLocalStorage();
 }
 
