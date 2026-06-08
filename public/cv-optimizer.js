@@ -155,10 +155,13 @@ function formatMarkdown(text) {
     let html = text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/>/g, '&gt;')
+        .replace(/&lt;span&gt;/g, '<span>')
+        .replace(/&lt;\/span&gt;/g, '</span>');
 
     // Convert Markdown Headers
     html = html.replace(/^# (.*?)$/gm, '<h1 class="text-2xl font-extrabold text-slate-900 border-b border-slate-200 pb-2 mb-4 mt-6">$1</h1>');
+    html = html.replace(/^##title## (.*?)$/gm, '<div class="job-title-header text-center text-lg font-bold text-slate-700 -mt-2 mb-2">$1</div>');
     html = html.replace(/^## (.*?)$/gm, '<h2 class="text-xl font-bold text-slate-800 pb-1 mb-3 mt-5">$1</h2>');
     html = html.replace(/^### (.*?)$/gm, '<h3 class="text-base font-semibold text-slate-700 mb-1.5 mt-3">$1</h3>');
 
@@ -201,7 +204,7 @@ function formatMarkdown(text) {
     return formattedLines.map(line => {
         const trimmed = line.trim();
         if (!trimmed) return '<div class="h-2"></div>'; // Empty lines are spacers
-        if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</ul')) {
+        if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</ul') || trimmed.startsWith('<div')) {
             return line;
         }
         return `<p class="text-sm text-slate-600 leading-relaxed mb-3">${line}</p>`;
@@ -216,10 +219,13 @@ function convertMarkdownToCleanPrintHtml(text) {
     let bodyHtml = text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/>/g, '&gt;')
+        .replace(/&lt;span&gt;/g, '<span>')
+        .replace(/&lt;\/span&gt;/g, '</span>');
 
     // Header conversions
     bodyHtml = bodyHtml.replace(/^# (.*?)$/gm, '<h1 class="name">$1</h1>');
+    bodyHtml = bodyHtml.replace(/^##title## (.*?)$/gm, '<div class="job-title" style="text-align: center; font-size: 13pt; font-weight: bold; color: #111111; margin-bottom: 6px;">$1</div>');
     bodyHtml = bodyHtml.replace(/^## (.*?)$/gm, '<h2 class="section-title">$1</h2>');
     bodyHtml = bodyHtml.replace(/^### (.*?)$/gm, '<h3 class="entry-title">$1</h3>');
 
@@ -259,7 +265,7 @@ function convertMarkdownToCleanPrintHtml(text) {
     const compiledHtml = formattedLines.map(line => {
         const trimmed = line.trim();
         if (!trimmed) return '';
-        if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</ul') || trimmed.startsWith('<strong') || trimmed.startsWith('<em')) {
+        if (trimmed.startsWith('<h') || trimmed.startsWith('<ul') || trimmed.startsWith('<li') || trimmed.startsWith('</ul') || trimmed.startsWith('<strong') || trimmed.startsWith('<em') || trimmed.startsWith('<div')) {
             return line;
         }
         return `<p>${line}</p>`;
@@ -498,7 +504,9 @@ function convertMarkdownToWordHtml(text) {
     let content = text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/>/g, '&gt;')
+        .replace(/&lt;span&gt;/g, '<span>')
+        .replace(/&lt;\/span&gt;/g, '</span>');
 
     // Bold (**text**)
     content = content.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
@@ -530,6 +538,14 @@ function convertMarkdownToWordHtml(text) {
             continue;
         }
 
+        // ##title## - Job Title (centered, slightly larger, e.g. 13pt)
+        if (trimmed.startsWith('##title## ')) {
+            if (inList) { html += '</ul>\n'; inList = false; }
+            const titleText = trimmed.substring(10);
+            html += `<p style="font-family:Arial,Helvetica,sans-serif; font-size:13pt; font-weight:bold; text-align:center; margin:0 0 6px 0;">${titleText}</p>\n`;
+            continue;
+        }
+
         // H2 - Section title (uppercase, 12pt, underline border)
         if (trimmed.startsWith('## ')) {
             if (inList) { html += '</ul>\n'; inList = false; }
@@ -541,8 +557,13 @@ function convertMarkdownToWordHtml(text) {
         // H3 - Entry title (bold, 10.5pt)
         if (trimmed.startsWith('### ')) {
             if (inList) { html += '</ul>\n'; inList = false; }
-            const heading = trimmed.substring(4);
-            html += `<h3 style="font-family:Arial,Helvetica,sans-serif; font-size:10.5pt; margin:10px 0 4px 0; font-weight:bold;">${heading}</h3>\n`;
+            let headingText = trimmed.substring(4);
+            
+            // Clean up spans if any for clean DOC layout
+            headingText = headingText.replace(/<\/span>\s*<span>/g, ' — ');
+            headingText = headingText.replace(/<\/?span[^>]*>/g, '');
+            
+            html += `<h3 style="font-family:Arial,Helvetica,sans-serif; font-size:10.5pt; margin:10px 0 4px 0; font-weight:bold;">${headingText}</h3>\n`;
             continue;
         }
 

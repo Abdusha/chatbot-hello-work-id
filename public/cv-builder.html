@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Abdusha">
+    <meta name="description" content="Hello Work ID - Pembuat CV ATS Manual">
+    <meta name="keywords" content="Hello Work ID, CV ATS, ATS Resume, Pembuat CV, CV Builder, AI Career Assistant">
+    <meta property="og:title" content="Hello Work ID - Pembuat CV ATS Manual">
+    <meta property="og:description"
+        content="Buat CV ATS secara manual dengan mudah dan dapatkan pratinjau langsung yang teroptimasi secara real-time.">
+    <meta property="og:image" content="icon.svg">
+    <meta property="og:url" content="https://hello-work-id.vercel.app/cv-builder">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Hello Work ID">
+    <meta property="og:locale" content="id_ID">
+
+    <title>Hello Work ID - Pembuat CV ATS Manual</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" type="image/png" href="icon-light-32x32.png" media="(prefers-color-scheme: light)">
+    <link rel="icon" type="image/png" href="icon-dark-32x32.png" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="apple-icon.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-background min-h-screen flex flex-col font-sans">
+    <!-- Navbar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/cv-builder" class="flex items-center gap-2">
+                    <span class="text-2xl">📄</span>
+                    <span class="font-extrabold text-xl tracking-tight text-slate-800">Hello Work <span
+                            class="text-teal-600">ID</span></span>
+                </a>
+                <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2.5 py-0.5 rounded">CV Builder</span>
+            </div>
+            <div>
+                <a href="/"
+                    class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" width="16" height="16">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Kembali ke Chat
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="text-center max-w-2xl mx-auto mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Buat CV ATS Secara Manual
+            </h1>
+            <p class="text-slate-600 text-base sm:text-lg">Isi formulir data diri di sebelah kiri, dan lihat pratinjau
+                CV Anda secara langsung di sebelah kanan. Unduh hasilnya gratis sebagai PDF atau Word.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Column: Input Form (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                <!-- Personal Info Section -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <span class="text-teal-600">👤</span> Informasi Pribadi
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="sm:col-span-2">
+                            <label for="input-fullname"
+                                class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Nama
+                                Lengkap</label>
+                            <input type="text" id="input-fullname" placeholder="Contoh: Budi Santoso"
+                                class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="input-jobtitle"
+                                class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Judul
+                                Profesional / Pekerjaan</label>
+                            <input type="text" id="input-jobtitle" placeholder="Contoh: Senior Software Engineer"
+                                class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all">
+                        </div>
+                        <div>
+                            <label for="input-email"
+                                class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Email</label>
+                            <input type="email" id="input-email" placeholder="Contoh: budi@email.com"
+                                class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all">
+                        </div>
+                        <div>
+                            <label for="input-phone"
+                                class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Nomor
+                                Telepon</label>
+                            <input type="text" id="input-phone" placeholder="Contoh: +62 812-3456-7890"
+                                class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all">
+                        </div>
+                        <div>
+                            <label for="input-linkedin"
+                                class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">LinkedIn
+                                URL</label>
+                            <input type="text" id="input-linkedin" placeholder="Contoh: linkedin.com/in/budisantoso"
+                                class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all">
+                        </div>
+                        <div>
+                            <label for="input-location"
+                                class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Lokasi
+                                / Domisili</label>
+                            <input type="text" id="input-location" placeholder="Contoh: Jakarta, Indonesia"
+                                class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile / Summary Section -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <span class="text-teal-600">📝</span> Ringkasan
+                    </h3>
+                    <div>
+                        <label for="input-profile"
+                            class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Ringkasan Karir</label>
+                        <p class="text-[11px] text-slate-400 mb-2">Tuliskan ringkasan karir Anda dalam 3-4 kalimat.
+                            Fokus pada keahlian utama, pengalaman, dan pencapaian terbesar Anda.</p>
+                        <textarea id="input-profile" rows="4"
+                            placeholder="Contoh: Software Engineer berpengalaman lebih dari 5 tahun dalam mengembangkan aplikasi web berskala besar menggunakan React, Node.js, dan cloud computing. Memiliki rekam jejak yang terbukti dalam meningkatkan efisiensi sistem hingga 30% dan memimpin tim developer beranggotakan 4 orang."
+                            class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Work Experience Section -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <span class="text-teal-600">💼</span> Pengalaman Kerja
+                        </h3>
+                        <button id="btn-add-experience" type="button"
+                            class="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-800 hover:bg-teal-50 px-2.5 py-1.5 rounded-lg border border-teal-200 transition-colors cursor-pointer">
+                            ➕ Tambah
+                        </button>
+                    </div>
+                    <div id="experience-container" class="flex flex-col gap-4">
+                        <!-- Dynamic Experience Forms will go here -->
+                    </div>
+                </div>
+
+                <!-- Education Section -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <span class="text-teal-600">🎓</span> Pendidikan
+                        </h3>
+                        <button id="btn-add-education" type="button"
+                            class="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 hover:text-teal-800 hover:bg-teal-50 px-2.5 py-1.5 rounded-lg border border-teal-200 transition-colors cursor-pointer">
+                            ➕ Tambah
+                        </button>
+                    </div>
+                    <div id="education-container" class="flex flex-col gap-4">
+                        <!-- Dynamic Education Forms will go here -->
+                    </div>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <span class="text-teal-600">🛠️</span> Keahlian
+                    </h3>
+                    <div>
+                        <label for="input-skills"
+                            class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Daftar
+                            Keahlian (Pisahkan dengan Koma)</label>
+                        <p class="text-[11px] text-slate-400 mb-2">Masukkan keahlian teknis (hard skills) atau soft
+                            skills Anda. Pisahkan satu dengan lainnya menggunakan tanda koma.</p>
+                        <textarea id="input-skills" rows="3"
+                            placeholder="Contoh: JavaScript, React, Node.js, SQL, Git, Project Management, Agile/Scrum"
+                            class="w-full border border-slate-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all resize-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- Clear Data Button -->
+                <button id="btn-reset-form"
+                    class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-200">
+                    🗑️ Reset & Kosongkan Formulir
+                </button>
+            </div>
+
+            <!-- Right Column: Preview Panel (7 cols) -->
+            <div class="lg:col-span-7 flex flex-col gap-4 lg:sticky lg:top-20">
+                <!-- Actions Toolbar -->
+                <div
+                    class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span> Pratinjau Langsung (ATS
+                            Layout)
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-download-docx"
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 px-3.5 py-2 rounded-lg shadow-sm transition-colors cursor-pointer">
+                            📝 Unduh DOCX
+                        </button>
+                        <button id="btn-download-pdf"
+                            class="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 px-3.5 py-2 rounded-lg shadow-sm transition-colors cursor-pointer">
+                            📥 Unduh PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CV Render Area -->
+                <div
+                    class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[600px] lg:max-h-[calc(100vh-160px)]">
+                    <div class="p-6 md:p-10 overflow-y-auto bg-white prose max-w-none text-slate-800"
+                        id="resume-render-area">
+                        <!-- Preview content populated dynamically by js -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[99999] flex flex-col gap-3 max-w-md w-full"></div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+            &copy; 2026 Hello Work ID. Dibuat dengan cinta untuk karir Indonesia yang lebih cemerlang.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="cv-builder.js" defer></script>
+</body>
+
+</html>
